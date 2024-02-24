@@ -18,6 +18,7 @@ struct ContentView: View {
     @State private var alertMessage = ""
     @State private var showingAlert = false
     
+    
    static var defaultWakeTime: Date {
         var components = DateComponents()
         components.hour = 7
@@ -29,33 +30,48 @@ struct ContentView: View {
         NavigationStack{
 
                 Form {
-                    VStack(alignment: .leading, spacing: 0) {
+                    Section("When do you want to wake up?") {
                         
-                        Text("When do you want to wake up?")
-                            .font(.headline)
                         
                         DatePicker("Please enter a time", selection: $wakeUp, displayedComponents: .hourAndMinute)
                             .labelsHidden()
                         
+                    }
+                    .onChange(of: wakeUp) {
+                        calculateBedtime()
+                    }
+                    Section("Desired amount of sleep") {
                         
-                        VStack(alignment: .leading, spacing: 0) {
-                        }
-                        Text("Desired amount of sleep")
-                            .font(.headline)
+
                         
                         
                         Stepper("\(sleepAmount.formatted()) hours", value: $sleepAmount, in:    4...12, step: 0.25)
                         
                     }
+               
+                    .onChange(of: sleepAmount) {
+                        calculateBedtime()
+                        
+                    }
+                    Section("Dail coffee intake") {
+                        
+                        Picker("^[\(coffeAmount) cup](inflect: true)", selection: $coffeAmount) {
+                            ForEach(1..<20) {cup in
+                                Text("^[\(cup) cup](inflect: true)")
+                            }
+                           
+                        }
+                        
+                        }
+                    .onChange(of: coffeAmount) {
+                        calculateBedtime()
+                        
+
+                        
+                    }
                     
-                    VStack(alignment: .leading, spacing: 0) {
-                        
-                        Text("Dail coffee intake")
-                            .font(.headline)
-                        
-                        
-                        Stepper("^[\(coffeAmount) cup](inflect: true)", value: $coffeAmount, in:    1...20)
-                        
+                    Section("Ideal betime") {
+                        Text(alertMessage)
                     }
                     
                     Image("coffee")
@@ -63,19 +79,7 @@ struct ContentView: View {
                     
                 }
                 .navigationTitle("BetterRest")
-                .toolbar {
-                    Button("Calculate") {
-                        calculateBedtime()
-                    }
-                    
-                    .alert(alertTitle, isPresented: $showingAlert) {
-                        Button("Ok") {
-                            
-                        }
-                    } message: {
-                        Text(alertMessage)
-                    }
-                }
+                
                 
                 
         
@@ -112,7 +116,10 @@ struct ContentView: View {
         showingAlert = true
         
     }
-}
+    
+  
+    
+    }
 #Preview {
     ContentView()
 }
